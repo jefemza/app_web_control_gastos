@@ -1,0 +1,44 @@
+# 🔐 Credenciales para Eugenio Cavallaro
+
+## Acceso al Sistema de Control de Caja Chica
+
+**URL de Acceso**: http://192.168.1.104:3000
+
+**Tus Credenciales**:
+- **Email**: eugenio.cavallaro@esm.com.ar
+- **Contraseña**: socio123
+
+## Instrucciones:
+
+1. Asegúrate de estar conectado a la misma red WiFi
+2. Abre tu navegador (Chrome, Firefox o Edge)
+3. Ingresa la URL: http://192.168.1.104:3000
+4. Usa tus credenciales para iniciar sesión
+
+## Funciones disponibles como Socio Operador:
+
+✅ Registrar nuevos gastos de caja chica
+✅ Adjuntar comprobantes (imágenes o PDF)
+✅ Ver el historial de tus propios gastos
+✅ Ver el estado de aprobación de tus gastos
+✅ Acceder desde computadora o celular
+
+## ¿Problemas para acceder?
+
+1. **Verifica la red**: Debes estar en la misma red WiFi
+2. **Prueba hacer ping**: 
+   - Abre CMD
+   - Escribe: `ping 192.168.1.104`
+   - Si responde, la conexión está OK
+
+3. **Firewall**: Es posible que tu antivirus o firewall esté bloqueando
+   - Agrega una excepción para el puerto 3000
+
+4. **Navegador**: Prueba con otro navegador o modo incógnito
+
+## Soporte:
+
+Si continúas con problemas, verifica con el administrador que el servidor esté activo.
+
+---
+*Claude AI - Sistema actualizado el 28/07/2025*

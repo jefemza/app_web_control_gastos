@@ -1,0 +1,285 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-esm-darker text-white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  /* Animaciones suaves */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  /* Estilos para el input */
+  .input-esm {
+    @apply w-full bg-transparent border-b border-gray-600 pb-2 pt-4 text-white placeholder-gray-500 focus:outline-none focus:border-esm-gold transition-colors duration-300;
+  }
+
+  /* Estilos para el botón */
+  .btn-esm {
+    @apply w-full py-4 mt-8 bg-transparent border border-esm-gold text-esm-gold rounded-full font-medium hover:bg-esm-gold hover:text-black transition-all duration-300 uppercase tracking-wider;
+  }
+
+  /* Efecto hover en el logo */
+  .logo-hover {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  /* Contenedor del formulario */
+  .form-container {
+    @apply w-full max-w-md mx-auto px-8;
+  }
+
+  /* Efecto de sombra suave */
+  .soft-shadow {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Estilos adicionales para el fondo */
+.gradient-bg {
+  background: radial-gradient(ellipse at top, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+/* Efecto de brillo en el logo */
+.logo-glow {
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
+}
+
+/* Estilo para el eye icon del password */
+.password-toggle {
+  @apply absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer;
+}
+
+/* Animaciones adicionales para Toast y otros componentes */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utilidades de animación */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Mejoras visuales */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Estados de loading y disabled */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Efectos de hover mejorados */
+.hover-gold {
+  transition: all 0.3s ease;
+}
+
+.hover-gold:hover {
+  color: #d4af37;
+  transform: translateY(-1px);
+}
+
+/* Sombras personalizadas */
+.shadow-esm {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-esm-lg {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Bordes con gradiente */
+.border-gradient {
+  border: 1px solid;
+  border-image: linear-gradient(45deg, #d4af37, rgba(212, 175, 55, 0.3)) 1;
+}
+
+/* Estados de foco mejorados */
+.focus-gold:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+/* Texto con gradiente */
+.text-gradient {
+  background: linear-gradient(45deg, #d4af37, #f4d03f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Efectos para cards */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+/* Indicadores de estado */
+.status-indicator {
+  position: relative;
+}
+
+.status-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #1f2937;
+}
+
+.status-indicator.active::after {
+  background: #10b981;
+}
+
+.status-indicator.inactive::after {
+  background: #ef4444;
+}
+
+.status-indicator.pending::after {
+  background: #f59e0b;
+  animation: pulse 2s infinite;
+}

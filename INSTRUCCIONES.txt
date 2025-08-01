@@ -1,0 +1,47 @@
+# INSTRUCCIONES DE INSTALACIÓN
+
+## Pasos para ejecutar la aplicación:
+
+1. **Copiar el logo manualmente**:
+   - Copie el archivo `logo_ESM Argentina.png` a la carpeta `src/assets/`
+   - Este paso es necesario para que el logo aparezca correctamente en los componentes
+
+2. **Instalar dependencias**:
+   ```bash
+   npm install
+   ```
+
+3. **Ejecutar la aplicación**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Abrir en el navegador**:
+   - La aplicación se abrirá automáticamente en `http://localhost:3000`
+
+## Credenciales de acceso:
+
+- **Admin**: juan.pablo@esm.com.ar / admin123
+- **Socio**: luis.tello@esm.com.ar / socio123
+- **Socio**: eugenio.cavallaro@esm.com.ar / socio123
+- **Contadora**: noelia@esm.com.ar / conta123
+
+## Estructura implementada:
+
+✅ Login con diseño oscuro elegante exacto al solicitado
+✅ Dashboard con estadísticas y navegación por roles
+✅ Registro de gastos con validaciones
+✅ Panel de control para el administrador
+✅ Vista de gastos personalizada por usuario
+✅ Gestión de usuarios (CRUD completo)
+✅ Diseño responsive
+✅ Tema "Cristal Noir" con colores oscuros y dorados
+
+## Próximos pasos recomendados:
+
+1. Integrar Supabase para persistencia de datos
+2. Implementar carga real de archivos
+3. Agregar funcionalidad de cámara
+4. Implementar exportación real a CSV/PDF
+5. Agregar gráficos con Recharts
+6. Implementar notificaciones en tiempo real

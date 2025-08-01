@@ -1,0 +1,11 @@
+name = "esm-gestion-backend"
+main = "src/index.js"
+compatibility_date = "2024-08-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "esm-gestion-db"
+database_id = "TBD"

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicializar Firebase - ESM</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Inter', system-ui, sans-serif;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #D4AF37;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        button {
+            background: #D4AF37;
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background: #FFD700;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .success { color: #4ade80; }
+        .warning { color: #fbbf24; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+        .steps {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid #D4AF37;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .steps h3 {
+            color: #D4AF37;
+            margin-bottom: 0.5rem;
+        }
+        .steps ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        .steps li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Inicializar Firebase - Control de Caja Chica ESM</h1>
+    
+    <div class="container">
+        <div class="steps">
+            <h3>⚠️ Antes de continuar, asegúrate de:</h3>
+            <ol>
+                <li>Haber habilitado "Email/Password" en Firebase Console > Authentication</li>
+                <li>Haber creado la base de datos en Firestore</li>
+                <li>Haber creado el bucket en Storage</li>
+                <li>El servidor de desarrollo debe estar corriendo (npm run dev)</li>
+            </ol>
+        </div>
+
+        <h2>Esta herramienta creará:</h2>
+        <ul>
+            <li>4 usuarios (Juan Pablo, Luis, Eugenio, Noelia)</li>
+            <li>6 categorías de gastos</li>
+            <li>4 medios de pago</li>
+        </ul>
+
+        <button id="initBtn" onclick="initialize()">
+            🚀 Inicializar Firebase
+        </button>
+
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script type="module">
+        import { initializeFirebase } from './src/scripts/initializeFirebase.js';
+        
+        window.initialize = async function() {
+            const btn = document.getElementById('initBtn');
+            const log = document.getElementById('log');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Procesando...';
+            log.style.display = 'block';
+            log.innerHTML = '';
+            
+            // Capturar console.log
+            const originalLog = console.log;
+            const originalError = console.error;
+            
+            console.log = function(...args) {
+                originalLog(...args);
+                const message = args.join(' ');
+                let className = 'info';
+                if (message.includes('✅')) className = 'success';
+                else if (message.includes('⚠️')) className = 'warning';
+                else if (message.includes('❌')) className = 'error';
+                
+                log.innerHTML += `<div class="${className}">${message}</div>`;
+                log.scrollTop = log.scrollHeight;
+            };
+            
+            console.error = function(...args) {
+                originalError(...args);
+                const message = args.join(' ');
+                log.innerHTML += `<div class="error">${message}</div>`;
+                log.scrollTop = log.scrollHeight;
+            };
+            
+            try {
+                await initializeFirebase();
+                btn.textContent = '✅ Completado';
+            } catch (error) {
+                btn.textContent = '❌ Error - Ver consola';
+                console.error('Error:', error);
+            }
+            
+            // Restaurar console
+            console.log = originalLog;
+            console.error = originalError;
+        };
+    </script>
+</body>
+</html>

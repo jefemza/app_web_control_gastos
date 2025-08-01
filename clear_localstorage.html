@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Limpiar LocalStorage</title>
+</head>
+<body>
+    <h1>Limpiador de LocalStorage</h1>
+    <button onclick="clearStorage()">Limpiar Storage</button>
+    <p id="status"></p>
+    
+    <script>
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('status').innerHTML = '✅ Storage limpiado correctamente. Ahora puedes volver a la aplicación.';
+        }
+    </script>
+</body>
+</html> 
