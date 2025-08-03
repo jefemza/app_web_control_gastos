@@ -1,9 +1,0 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyCoIj7d4p9RDsObUzKaAcEXWEWcCmISOXA",
-  authDomain: "sage-archway-464312-b5.firebaseapp.com",
-  projectId: "sage-archway-464312-b5",
-  storageBucket: "sage-archway-464312-b5.firebasestorage.app",
-  messagingSenderId: "384155012151",
-  appId: "1:384155012151:web:26f14fbe5b2825b78b43b2",
-  measurementId: "G-LXLM3SXL4K"
-};
