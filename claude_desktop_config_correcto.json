@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "D:\\"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+      }
+    }
+  },
+  "isUsingBuiltInNodeForMcp": true,
+  "isDxtAutoUpdatesEnabled": true
+}

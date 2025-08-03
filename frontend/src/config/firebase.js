@@ -6,13 +6,13 @@ import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCoIj7d4p9RDsObUzKaAcEXWEWcCmISOXA",
-  authDomain: "sage-archway-464312-b5.firebaseapp.com",
-  projectId: "sage-archway-464312-b5",
-  storageBucket: "sage-archway-464312-b5.firebasestorage.app",
-  messagingSenderId: "38415501213",
-  appId: "1:38415501213:web:26f14fbe5b2825b78b43b2",
-  measurementId: "G-LXLM3SVL4K"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCoIj7d4p9RDsObUzKaAcEXWEWcCmISOXA",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "sage-archway-464312-b5.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "sage-archway-464312-b5",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "sage-archway-464312-b5.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "38415501213",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:38415501213:web:26f14fbe5b2825b78b43b2",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-LXLM3SVL4K"
 };
 
 // Initialize Firebase

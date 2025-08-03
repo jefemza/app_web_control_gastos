@@ -1,15 +1,21 @@
 {
   "name": "control-caja-chica-esm",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "description": "Sistema web para control de gastos de caja chica - ESM Argentina",
   "scripts": {
     "dev": "vite",
     "dev:network": "vite --host",
     "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext js,jsx --fix",
     "preview": "vite preview",
-    "preview:network": "vite preview --host"
+    "preview:network": "vite preview --host",
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "deploy:vercel": "npm run build && vercel --prod",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist/stats.html"
   },
   "dependencies": {
     "firebase": "^10.14.1",

@@ -1,0 +1,11 @@
+{
+  "defaultTeam": "esm-argentina",
+  "autoConfirm": true,
+  "silent": false,
+  "regions": ["iad1"],
+  "builds": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}
