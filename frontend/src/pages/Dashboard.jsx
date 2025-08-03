@@ -21,6 +21,7 @@ import { getResumenFondos, subscribeToFondos } from '../services/fondosService';
 import PropTypes from 'prop-types';
 import { formatCurrency } from '../utils/formatters';
 import { debugFirebase, testWritePermissions } from '../utils/debugFirebase';
+import RolePermissionsTest from '../components/RolePermissionsTest';
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -360,6 +361,13 @@ export default function Dashboard({ user, onLogout }) {
 
         {/* Botón de Test Data - Solo en desarrollo */}
         <TestDataButton user={user} />
+        
+        {/* Componente de prueba de permisos - Solo en desarrollo */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="container mx-auto px-4 mt-8">
+            <RolePermissionsTest user={user} />
+          </div>
+        )}
       </main>
     </div>
   );

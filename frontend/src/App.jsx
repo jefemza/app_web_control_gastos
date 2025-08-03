@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from './config/firebase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import RegistroGastos from './pages/RegistroGastos';
@@ -10,6 +12,7 @@ import GestionFondos from './pages/GestionFondos';
 import Notificaciones from './pages/Notificaciones';
 import ClaudePresence from './components/ClaudePresence';
 import ToastContainer from './components/notifications/ToastContainer';
+import AuthDebugger from './components/AuthDebugger';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -19,19 +22,49 @@ function App() {
     // Verificar si hay una sesión guardada
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        console.log('Usuario recuperado de localStorage:', parsedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error al parsear usuario de localStorage:', error);
+        localStorage.removeItem('user');
+      }
     }
-    setIsLoading(false);
+
+    // Escuchar cambios en el estado de autenticación de Firebase
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser && savedUser) {
+        // Si Firebase no tiene sesión pero localStorage sí, limpiar localStorage
+        console.log('Sesión de Firebase expirada, limpiando localStorage');
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleLogin = (userData) => {
+    console.log('handleLogin llamado con:', userData);
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Cerrar sesión en Firebase
+      await signOut(auth);
+      console.log('Sesión cerrada en Firebase');
+    } catch (error) {
+      console.error('Error al cerrar sesión en Firebase:', error);
+    }
+    
+    // Limpiar estado local
     setUser(null);
     localStorage.removeItem('user');
+    console.log('Sesión local limpiada');
   };
 
   if (isLoading) {
@@ -144,6 +177,9 @@ function App() {
       
       {/* Toast Notifications */}
       <ToastContainer />
+      
+      {/* Auth Debugger (solo en desarrollo) */}
+      <AuthDebugger />
     </>
   );
 }
