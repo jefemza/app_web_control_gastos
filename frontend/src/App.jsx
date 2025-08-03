@@ -115,10 +115,10 @@ function App() {
           <Route 
             path="/panel-control" 
             element={
-              user && (user.role === 'admin_principal' || user.role === 'socio_operador') ? (
+              user ? (
                 <PanelControl user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/dashboard" replace />
+                <Navigate to="/login" replace />
               )
             } 
           />
@@ -137,10 +137,10 @@ function App() {
           <Route 
             path="/usuarios" 
             element={
-              user && (user.role === 'admin_principal' || user.role === 'socio_operador') ? (
+              user ? (
                 <GestionUsuarios user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/dashboard" replace />
+                <Navigate to="/login" replace />
               )
             } 
           />
@@ -148,10 +148,10 @@ function App() {
           <Route 
             path="/fondos" 
             element={
-              user && (user.role === 'admin_principal' || user.role === 'contadora') ? (
+              user ? (
                 <GestionFondos user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/dashboard" replace />
+                <Navigate to="/login" replace />
               )
             } 
           />

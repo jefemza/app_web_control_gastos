@@ -76,52 +76,33 @@ export default function Dashboard({ user, onLogout }) {
       setLoading(false);
     };
     
-    if (user.role === 'admin_principal' || user.role === 'contadora') {
-      // Admin y contadora ven estadísticas de todos
-      unsubscribeGastos = subscribeToGastos(procesarGastos);
-    } else {
-      // Socios solo ven sus estadísticas
-      unsubscribeGastos = subscribeToGastos(procesarGastos, user.uid || user.id);
-    }
+    // Todos los usuarios ven todas las estadísticas
+    unsubscribeGastos = subscribeToGastos(procesarGastos);
 
-    // Suscribirse a cambios en fondos
-    if (user.role === 'admin_principal' || user.role === 'contadora') {
-      unsubscribeFondos = subscribeToFondos(async () => {
-        const resumen = await getResumenFondos();
-        setFondosInfo({
-          totalDisponible: resumen.totalDisponible,
-          totalGastado: resumen.totalGastado,
-          porcentajeUsado: resumen.porcentajeUsado
-        });
+    // Todos los usuarios pueden ver la información de fondos
+    unsubscribeFondos = subscribeToFondos(async () => {
+      const resumen = await getResumenFondos();
+      setFondosInfo({
+        totalDisponible: resumen.totalDisponible,
+        totalGastado: resumen.totalGastado,
+        porcentajeUsado: resumen.porcentajeUsado
       });
-    }
+    });
 
     return () => {
       unsubscribeGastos();
-      if (unsubscribeFondos) unsubscribeFondos();
+      unsubscribeFondos();
     };
   }, [user, periodo]);
 
-  const menuItems = {
-    admin_principal: [
-      { icon: PlusCircle, label: 'Registrar Gasto', path: '/registro-gastos', color: 'from-green-500 to-emerald-600' },
-      { icon: Shield, label: 'Panel de Control', path: '/panel-control', color: 'from-purple-500 to-indigo-600' },
-      { icon: Eye, label: 'Ver Todos los Gastos', path: '/vista-gastos', color: 'from-blue-500 to-cyan-600' },
-      { icon: Wallet, label: 'Gestión de Fondos', path: '/fondos', color: 'from-yellow-500 to-amber-600' },
-      { icon: Users, label: 'Gestión de Usuarios', path: '/usuarios', color: 'from-orange-500 to-red-600' }
-    ],
-    socio_operador: [
-      { icon: PlusCircle, label: 'Registrar Gasto', path: '/registro-gastos', color: 'from-green-500 to-emerald-600' },
-      { icon: Eye, label: 'Ver Mis Gastos', path: '/vista-gastos', color: 'from-blue-500 to-cyan-600' }
-    ],
-    contadora: [
-      { icon: PlusCircle, label: 'Registrar Gasto', path: '/registro-gastos', color: 'from-green-500 to-emerald-600' },
-      { icon: Eye, label: 'Ver Todos los Gastos', path: '/vista-gastos', color: 'from-blue-500 to-cyan-600' },
-      { icon: Wallet, label: 'Gestión de Fondos', path: '/fondos', color: 'from-yellow-500 to-amber-600' }
-    ]
-  };
-
-  const currentMenuItems = menuItems[user.role] || [];
+  // Todos los usuarios tienen acceso a todas las opciones
+  const menuItems = [
+    { icon: PlusCircle, label: 'Registrar Gasto', path: '/registro-gastos', color: 'from-green-500 to-emerald-600' },
+    { icon: Shield, label: 'Panel de Control', path: '/panel-control', color: 'from-purple-500 to-indigo-600' },
+    { icon: Eye, label: 'Ver Todos los Gastos', path: '/vista-gastos', color: 'from-blue-500 to-cyan-600' },
+    { icon: Wallet, label: 'Gestión de Fondos', path: '/fondos', color: 'from-yellow-500 to-amber-600' },
+    { icon: Users, label: 'Gestión de Usuarios', path: '/usuarios', color: 'from-orange-500 to-red-600' }
+  ];
 
   if (loading) {
     return (
@@ -158,7 +139,7 @@ export default function Dashboard({ user, onLogout }) {
 
         {/* Menú de opciones - MOVIDO ARRIBA */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {currentMenuItems.map((item, index) => {
+                      {menuItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <button

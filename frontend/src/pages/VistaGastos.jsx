@@ -19,21 +19,12 @@ const VistaGastos = ({ user, onLogout }) => {
     // Suscribirse a cambios en tiempo real
     let unsubscribe;
     
-    if (user.role === 'admin_principal' || user.role === 'contadora') {
-      // Admin y contadora ven todos los gastos
-      unsubscribe = subscribeToGastos((gastosData) => {
-        setGastos(gastosData);
-        setGastosOriginales(gastosData);
-        setLoading(false);
-      });
-    } else {
-      // Socios solo ven sus gastos
-      unsubscribe = subscribeToGastos((gastosData) => {
-        setGastos(gastosData);
-        setGastosOriginales(gastosData);
-        setLoading(false);
-      }, user.uid || user.id);
-    }
+    // Todos los usuarios ven todos los gastos
+    unsubscribe = subscribeToGastos((gastosData) => {
+      setGastos(gastosData);
+      setGastosOriginales(gastosData);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, [user]);
