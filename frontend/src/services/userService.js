@@ -20,6 +20,7 @@ import {
   onSnapshot 
 } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
+import { ROLES, hasPermission, getRoleDescription } from '../constants/roles';
 
 class UserService {
   constructor() {
@@ -376,8 +377,7 @@ class UserService {
    * @returns {boolean}
    */
   isValidRole(role) {
-    const validRoles = ['admin_principal', 'socio_operador', 'contadora'];
-    return validRoles.includes(role);
+    return Object.values(ROLES).includes(role);
   }
 
   /**

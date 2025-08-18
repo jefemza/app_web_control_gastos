@@ -6,6 +6,7 @@ import { uploadMultipleFiles, validateFile, captureFromCamera } from '../service
 import { createGasto } from '../services/gastosService';
 import { showToast } from '../components/notifications/ToastContainer';
 import { formatCurrency } from '../utils/formatters';
+import { CATEGORIAS_GASTOS, MEDIOS_PAGO } from '../constants/categorias';
 import PropTypes from 'prop-types';
 
 export default function RegistroGastos({ user, onLogout }) {
@@ -27,22 +28,6 @@ export default function RegistroGastos({ user, onLogout }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState('');
 
-  const mediosPago = ['efectivo', 'transferencia', 'billetera', 'tarjeta'];
-  const categorias = [
-    'libreria',
-    'supermercado',
-    'premios',
-    'cartas documento',
-    'gabelas',
-    'internet',
-    'boletas sindicales',
-    'nómina',
-    'viáticos',
-    'recargas chips',
-    'proveedores',
-    'edemsa 914',
-    'otros'
-  ];
 
   // Manejar selección de archivos
   const handleFileSelect = async (e) => {
@@ -241,7 +226,7 @@ export default function RegistroGastos({ user, onLogout }) {
                   required
                 >
                   <option value="">Seleccionar...</option>
-                  {mediosPago.map(medio => (
+                  {MEDIOS_PAGO.map(medio => (
                     <option key={medio} value={medio}>
                       {medio.charAt(0).toUpperCase() + medio.slice(1)}
                     </option>
@@ -261,7 +246,7 @@ export default function RegistroGastos({ user, onLogout }) {
                   required
                 >
                   <option value="">Seleccionar...</option>
-                  {categorias.map(cat => (
+                  {CATEGORIAS_GASTOS.map(cat => (
                     <option key={cat} value={cat}>
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
                     </option>

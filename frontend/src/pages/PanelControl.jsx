@@ -6,6 +6,7 @@ import { exportToCSV, formatGastosForCSV, gastosCSVHeaders } from '../utils/csvE
 import { subscribeToGastos, aprobarGasto, rechazarGasto } from '../services/gastosService';
 import { showToast } from '../components/notifications/ToastContainer';
 import { formatCurrency } from '../utils/formatters';
+import { CATEGORIAS_GASTOS } from '../constants/categorias';
 import PropTypes from 'prop-types';
 
 export default function PanelControl({ user, onLogout }) {
@@ -126,7 +127,6 @@ export default function PanelControl({ user, onLogout }) {
 
   // Obtener usuarios únicos
   const usuariosUnicos = [...new Set(gastosOriginales.map(g => g.usuario))];
-  const categoriasUnicas = [...new Set(gastosOriginales.map(g => g.categoria))];
 
   if (loading) {
     return (
@@ -201,7 +201,7 @@ export default function PanelControl({ user, onLogout }) {
               onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value })}
             >
               <option value="">Todas las categorías</option>
-              {categoriasUnicas.map(cat => (
+              {CATEGORIAS_GASTOS.map(cat => (
                 <option key={cat} value={cat}>
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </option>
