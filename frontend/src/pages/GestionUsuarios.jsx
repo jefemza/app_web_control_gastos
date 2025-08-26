@@ -3,34 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserPlus, Edit2, Trash2, Shield, Mail, RefreshCw, Search } from 'lucide-react';
 import Header from '../components/Header';
 import { useToast } from '../components/ui/Toast';
-import useUsers from '../hooks/useUsers';
-import { validateUserData, getInitials, getStatusColor, getTimeAgo } from '../utils/formatters';
+import { ROLES } from '../constants/roles';
+import { userService } from '../services/userService';
+import { auditService } from '../services/auditService';
 
 export default function GestionUsuarios({ user, onLogout }) {
   const navigate = useNavigate();
   const { success, error, ToastContainer } = useToast();
   
-  const {
-    users,
-    stats,
-    loading,
-    error: usersError,
-    createUser,
-    updateUser,
-    deactivateUser,
-    deleteUser,
-    loadUsers,
-    searchUsers,
-    filterByRole,
-    filterByStatus,
-    hasPermission,
-    isEmailUnique,
-    clearError
-  } = useUsers();
-
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [procesando, setProcesando] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
-  const [procesando, setProcesando] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -43,32 +28,70 @@ export default function GestionUsuarios({ user, onLogout }) {
     estado: 'activo'
   });
 
-  // Verificar permisos
+  // Verificar permisos de acceso
   useEffect(() => {
-    if (!hasPermission(user, 'canManageUsers')) {
+    if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
       error('No tienes permisos para acceder a esta sección');
       navigate('/dashboard');
       return;
     }
-  }, [user, navigate, hasPermission, error]);
+    loadUsers();
+  }, [user, navigate]);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const allUsers = await userService.getAllUsers();
+      setUsers(allUsers);
+    } catch (err) {
+      error('Error al cargar usuarios: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filtrar usuarios según criterios de búsqueda
   const filteredUsers = () => {
     let result = users;
     
     if (searchTerm) {
-      result = searchUsers(searchTerm);
+      result = result.filter(u => 
+        u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
     
     if (roleFilter) {
-      result = filterByRole(roleFilter);
+      result = result.filter(u => u.role === roleFilter);
     }
     
     if (statusFilter) {
-      result = filterByStatus(statusFilter);
+      result = result.filter(u => u.estado === statusFilter);
     }
     
     return result;
+  };
+
+  // Verificar si el usuario actual puede realizar una acción
+  const canPerformAction = (action, targetUser = null) => {
+    if (user.role === 'superadmin') return true;
+    
+    if (user.role === 'admin') {
+      switch (action) {
+        case 'create_user':
+          return true; // Solo puede crear usuarios 'user'
+        case 'edit_user':
+          return targetUser?.role === 'user'; // Solo puede editar usuarios 'user'
+        case 'delete_user':
+          return false; // No puede eliminar usuarios
+        case 'change_role':
+          return false; // No puede cambiar roles
+        default:
+          return false;
+      }
+    }
+    
+    return false;
   };
 
   const handleSubmit = async (e) => {
@@ -76,84 +99,153 @@ export default function GestionUsuarios({ user, onLogout }) {
     
     try {
       setProcesando(true);
-      clearError();
 
-      // Validar datos
-      const errors = validateUserData(formData);
-      if (errors.length > 0) {
-        error(errors.join(', '));
+      // Validaciones
+      if (!formData.name.trim()) {
+        error('El nombre es obligatorio');
+        return;
+      }
+      if (!formData.email.trim()) {
+        error('El email es obligatorio');
+        return;
+      }
+      if (!formData.role) {
+        error('El rol es obligatorio');
+        return;
+      }
+      if (!usuarioEditando && !formData.password) {
+        error('La contraseña es obligatoria para nuevos usuarios');
         return;
       }
 
-      // Verificar unicidad del email
-      if (!isEmailUnique(formData.email, usuarioEditando?.id)) {
-        error('Ya existe un usuario con este email');
-        return;
+      // Verificar permisos
+      if (usuarioEditando) {
+        if (!canPerformAction('edit_user', usuarioEditando)) {
+          error('No tienes permisos para editar este usuario');
+          return;
+        }
+      } else {
+        if (!canPerformAction('create_user')) {
+          error('No tienes permisos para crear usuarios');
+          return;
+        }
+        // ADMIN solo puede crear usuarios 'user'
+        if (user.role === 'admin' && formData.role !== 'user') {
+          error('Solo puedes crear usuarios con rol "user"');
+          return;
+        }
       }
 
       if (usuarioEditando) {
         // Editar usuario existente
         const datosActualizacion = {
           name: formData.name,
-          role: formData.role,
           estado: formData.estado
         };
+
+        // Solo SUPERADMIN puede cambiar roles
+        if (user.role === 'superadmin' && formData.role !== usuarioEditando.role) {
+          datosActualizacion.role = formData.role;
+        }
 
         // Solo incluir email si cambió
         if (formData.email !== usuarioEditando.email) {
           datosActualizacion.email = formData.email;
         }
 
-        await updateUser(usuarioEditando.id, datosActualizacion);
+        await userService.updateUser(usuarioEditando.id, datosActualizacion);
+        
+        // Auditoría
+        await auditService.logAction({
+          usuarioId: user.id || user.uid,
+          usuarioEmail: user.email,
+          usuarioNombre: user.name,
+          accion: 'EDITAR_USUARIO',
+          entidad: 'usuarios',
+          entidadId: usuarioEditando.id,
+          detalles: `Usuario editado: ${formData.name} (${formData.email})`,
+          valorAnterior: usuarioEditando,
+          valorNuevo: { ...usuarioEditando, ...datosActualizacion }
+        });
+
+        success('Usuario actualizado correctamente');
       } else {
         // Crear nuevo usuario
-        await createUser(formData);
+        const newUser = await userService.createUser(formData);
+        
+        // Auditoría
+        await auditService.logAction({
+          usuarioId: user.id || user.uid,
+          usuarioEmail: user.email,
+          usuarioNombre: user.name,
+          accion: 'CREAR_USUARIO',
+          entidad: 'usuarios',
+          entidadId: newUser.id,
+          detalles: `Nuevo usuario creado: ${formData.name} (${formData.email}) - Rol: ${formData.role}`,
+          valorNuevo: newUser
+        });
+
+        success('Usuario creado correctamente');
       }
 
       // Resetear formulario
       resetFormulario();
+      loadUsers();
 
-    } catch (error) {
-      console.error('Error en operación:', error);
-      // El error ya se muestra en el hook
+    } catch (err) {
+      error('Error: ' + err.message);
     } finally {
       setProcesando(false);
     }
   };
 
   const handleEditar = (usuario) => {
+    if (!canPerformAction('edit_user', usuario)) {
+      error('No tienes permisos para editar este usuario');
+      return;
+    }
+
     setUsuarioEditando(usuario);
     setFormData({
-      name: usuario.name,
-      email: usuario.email,
-      role: usuario.role,
+      name: usuario.name || '',
+      email: usuario.email || '',
+      role: usuario.role || '',
       password: '',
       estado: usuario.estado || 'activo'
     });
     setMostrarFormulario(true);
   };
 
-  const handleDesactivar = async (uid) => {
-    if (!confirm('¿Está seguro de desactivar este usuario?')) return;
-
-    try {
-      setProcesando(true);
-      await deactivateUser(uid);
-    } catch (error) {
-      // El error ya se muestra en el hook
-    } finally {
-      setProcesando(false);
+  const handleEliminar = async (usuario) => {
+    if (!canPerformAction('delete_user', usuario)) {
+      error('No tienes permisos para eliminar usuarios');
+      return;
     }
-  };
 
-  const handleEliminar = async (uid) => {
-    if (!confirm('¿Está seguro de eliminar permanentemente este usuario?\n\nEsta acción NO se puede deshacer.')) return;
+    if (!confirm(`¿Está seguro de eliminar permanentemente al usuario "${usuario.name}"?\n\nEsta acción NO se puede deshacer.`)) {
+      return;
+    }
 
     try {
       setProcesando(true);
-      await deleteUser(uid);
-    } catch (error) {
-      // El error ya se muestra en el hook
+      await userService.deleteUser(usuario.id);
+      
+      // Auditoría
+      await auditService.logAction({
+        usuarioId: user.id || user.uid,
+        usuarioEmail: user.email,
+        usuarioNombre: user.name,
+        accion: 'ELIMINAR_USUARIO',
+        entidad: 'usuarios',
+        entidadId: usuario.id,
+        detalles: `Usuario eliminado: ${usuario.name} (${usuario.email})`,
+        valorAnterior: usuario
+      });
+
+      success('Usuario eliminado correctamente');
+      loadUsers();
+    } catch (err) {
+      error('Error al eliminar usuario: ' + err.message);
     } finally {
       setProcesando(false);
     }
@@ -167,16 +259,29 @@ export default function GestionUsuarios({ user, onLogout }) {
 
   const getRoleBadge = (role) => {
     const estilos = {
-      admin_principal: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
-      socio_operador: 'bg-blue-500/20 text-blue-400 border-blue-500/50',
-      contadora: 'bg-green-500/20 text-green-400 border-green-500/50'
+      superadmin: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
+      admin: 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+      socio: 'bg-green-500/20 text-green-400 border-green-500/50',
+      user: 'bg-gray-500/20 text-gray-400 border-gray-500/50'
     };
     const nombres = {
-      admin_principal: 'Admin Principal',
-      socio_operador: 'Socio Operador',
-      contadora: 'Contadora'
+      superadmin: 'Super Admin',
+      admin: 'Admin',
+      socio: 'Socio',
+      user: 'Usuario'
     };
     return { estilo: estilos[role] || '', nombre: nombres[role] || role };
+  };
+
+  const getStatusColor = (estado) => {
+    return estado === 'activo' 
+      ? 'bg-green-500/20 text-green-400 border-green-500/50'
+      : 'bg-red-500/20 text-red-400 border-red-500/50';
+  };
+
+  const getInitials = (name) => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   if (loading) {
@@ -193,6 +298,16 @@ export default function GestionUsuarios({ user, onLogout }) {
       </div>
     );
   }
+
+  const stats = {
+    total: users.length,
+    activos: users.filter(u => u.estado === 'activo').length,
+    inactivos: users.filter(u => u.estado === 'inactivo').length,
+    superadmin: users.filter(u => u.role === 'superadmin').length,
+    admin: users.filter(u => u.role === 'admin').length,
+    socio: users.filter(u => u.role === 'socio').length,
+    user: users.filter(u => u.role === 'user').length
+  };
 
   return (
     <div className="min-h-screen bg-esm-darker">
@@ -227,13 +342,13 @@ export default function GestionUsuarios({ user, onLogout }) {
                 <div className="text-2xl font-bold text-green-400">{stats.activos}</div>
                 <div className="text-sm text-green-400">Activos</div>
               </div>
-              <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
-                <div className="text-2xl font-bold text-red-400">{stats.inactivos}</div>
-                <div className="text-sm text-red-400">Inactivos</div>
+              <div className="bg-purple-500/10 rounded-lg p-3 border border-purple-500/30">
+                <div className="text-2xl font-bold text-purple-400">{stats.superadmin + stats.admin}</div>
+                <div className="text-sm text-purple-400">Administradores</div>
               </div>
               <div className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/30">
-                <div className="text-2xl font-bold text-blue-400">{stats.recentUsers}</div>
-                <div className="text-sm text-blue-400">Nuevos (7d)</div>
+                <div className="text-2xl font-bold text-blue-400">{stats.user}</div>
+                <div className="text-sm text-blue-400">Usuarios</div>
               </div>
             </div>
           </div>
@@ -248,18 +363,20 @@ export default function GestionUsuarios({ user, onLogout }) {
               <span>Actualizar</span>
             </button>
             
-            <button
-              onClick={() => {
-                setMostrarFormulario(true);
-                setUsuarioEditando(null);
-                resetFormulario();
-              }}
-              disabled={procesando}
-              className="bg-esm-gold text-black font-medium px-6 py-3 rounded-lg hover:bg-yellow-400 transition-colors flex items-center space-x-2"
-            >
-              <UserPlus className="w-5 h-5" />
-              <span>Nuevo Usuario</span>
-            </button>
+            {canPerformAction('create_user') && (
+              <button
+                onClick={() => {
+                  setMostrarFormulario(true);
+                  setUsuarioEditando(null);
+                  resetFormulario();
+                }}
+                disabled={procesando}
+                className="bg-esm-gold text-black font-medium px-6 py-3 rounded-lg hover:bg-yellow-400 transition-colors flex items-center space-x-2"
+              >
+                <UserPlus className="w-5 h-5" />
+                <span>Nuevo Usuario</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -283,9 +400,10 @@ export default function GestionUsuarios({ user, onLogout }) {
               className="w-full bg-esm-darker border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-esm-gold transition-colors"
             >
               <option value="">Todos los roles</option>
-              <option value="admin_principal">Admin Principal</option>
-              <option value="contadora">Contadora</option>
-              <option value="socio_operador">Socio Operador</option>
+              <option value="superadmin">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="socio">Socio</option>
+              <option value="user">Usuario</option>
             </select>
             
             <select
@@ -357,14 +475,25 @@ export default function GestionUsuarios({ user, onLogout }) {
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                   required
-                  disabled={procesando}
+                  disabled={procesando || (user.role === 'admin' && !usuarioEditando)}
                   className="w-full bg-esm-darker border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-esm-gold transition-colors disabled:opacity-50"
                 >
                   <option value="">Seleccionar rol...</option>
-                  <option value="admin_principal">Admin Principal</option>
-                  <option value="socio_operador">Socio Operador</option>
-                  <option value="contadora">Contadora</option>
+                  {user.role === 'superadmin' && (
+                    <>
+                      <option value="superadmin">Super Admin</option>
+                      <option value="admin">Admin</option>
+                      <option value="socio">Socio</option>
+                      <option value="user">Usuario</option>
+                    </>
+                  )}
+                  {user.role === 'admin' && (
+                    <option value="user">Usuario</option>
+                  )}
                 </select>
+                {user.role === 'admin' && !usuarioEditando && (
+                  <p className="text-sm text-gray-400 mt-1">Solo puedes crear usuarios con rol "Usuario"</p>
+                )}
               </div>
 
               <div>
@@ -432,7 +561,6 @@ export default function GestionUsuarios({ user, onLogout }) {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Rol</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Último acceso</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
@@ -453,7 +581,7 @@ export default function GestionUsuarios({ user, onLogout }) {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white">
-                              {usuario.name}
+                              {usuario.name || 'Sin nombre'}
                               {isCurrentUser && <span className="ml-2 text-xs text-esm-gold">(Tú)</span>}
                             </div>
                           </div>
@@ -475,45 +603,31 @@ export default function GestionUsuarios({ user, onLogout }) {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 text-xs font-medium rounded-full border ${estadoBadge}`}>
-                          {usuario.estado}
+                          {usuario.estado || 'activo'}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {usuario.fechaUltimoAcceso ? getTimeAgo(usuario.fechaUltimoAcceso) : 'Nunca'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handleEditar(usuario)}
-                            disabled={procesando}
-                            className="text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
-                            title="Editar"
-                          >
-                            <Edit2 className="w-5 h-5" />
-                          </button>
+                          {canPerformAction('edit_user', usuario) && (
+                            <button
+                              onClick={() => handleEditar(usuario)}
+                              disabled={procesando}
+                              className="text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                              title="Editar"
+                            >
+                              <Edit2 className="w-5 h-5" />
+                            </button>
+                          )}
                           
-                          {!isCurrentUser && (
-                            <>
-                              {usuario.estado === 'activo' ? (
-                                <button
-                                  onClick={() => handleDesactivar(usuario.id)}
-                                  disabled={procesando}
-                                  className="text-orange-400 hover:text-orange-300 transition-colors disabled:opacity-50"
-                                  title="Desactivar"
-                                >
-                                  <Shield className="w-5 h-5" />
-                                </button>
-                              ) : null}
-                              
-                              <button
-                                onClick={() => handleEliminar(usuario.id)}
-                                disabled={procesando}
-                                className="text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
-                                title="Eliminar permanentemente"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            </>
+                          {!isCurrentUser && canPerformAction('delete_user', usuario) && (
+                            <button
+                              onClick={() => handleEliminar(usuario)}
+                              disabled={procesando}
+                              className="text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+                              title="Eliminar permanentemente"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
                           )}
                         </div>
                       </td>
@@ -537,34 +651,39 @@ export default function GestionUsuarios({ user, onLogout }) {
         {/* Información de permisos */}
         <div className="mt-8 bg-esm-gray/30 rounded-lg p-6 border border-gray-700">
           <h4 className="text-lg font-medium text-white mb-4">Permisos por Rol</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <h5 className="text-purple-400 font-medium mb-2">Admin Principal</h5>
+              <h5 className="text-purple-400 font-medium mb-2">Super Admin</h5>
               <ul className="text-gray-400 space-y-1">
-                <li>• Acceso completo al sistema</li>
-                <li>• Aprobar/rechazar gastos</li>
-                <li>• Gestionar usuarios</li>
-                <li>• Gestionar fondos</li>
-                <li>• Exportar reportes</li>
+                <li>• Control total del sistema</li>
+                <li>• Gestionar todos los usuarios</li>
+                <li>• Ver auditoría completa</li>
+                <li>• Reset total de aplicación</li>
               </ul>
             </div>
             <div>
-              <h5 className="text-green-400 font-medium mb-2">Contadora</h5>
+              <h5 className="text-blue-400 font-medium mb-2">Admin</h5>
+              <ul className="text-gray-400 space-y-1">
+                <li>• Crear usuarios "user"</li>
+                <li>• Editar usuarios "user"</li>
+                <li>• Gestionar fondos</li>
+                <li>• Importar/exportar gastos</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-green-400 font-medium mb-2">Socio</h5>
               <ul className="text-gray-400 space-y-1">
                 <li>• Registrar gastos</li>
                 <li>• Ver todos los gastos</li>
-                <li>• Gestionar fondos</li>
-                <li>• Generar reportes</li>
-                <li>• No puede aprobar gastos</li>
+                <li>• Acceso limitado</li>
               </ul>
             </div>
             <div>
-              <h5 className="text-blue-400 font-medium mb-2">Socio Operador</h5>
+              <h5 className="text-gray-400 font-medium mb-2">Usuario</h5>
               <ul className="text-gray-400 space-y-1">
-                <li>• Registrar gastos propios</li>
-                <li>• Ver historial propio</li>
-                <li>• Adjuntar comprobantes</li>
-                <li>• Acceso limitado al dashboard</li>
+                <li>• Registrar gastos</li>
+                <li>• Ver sus propios gastos</li>
+                <li>• Acceso básico</li>
               </ul>
             </div>
           </div>

@@ -11,10 +11,49 @@ import {
   onSnapshot,
   serverTimestamp,
   getDoc,
-  limit
+  limit,
+  deleteDoc
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'fondos';
+
+// Eliminar todos los fondos - SOLO PARA SUPERADMIN
+export const deleteAllFondos = async (user, auditServiceRef) => {
+  try {
+    if (!user || user.role !== 'superadmin') {
+      throw new Error('Solo los SUPERADMIN pueden eliminar todos los fondos');
+    }
+
+    const q = query(collection(db, COLLECTION_NAME));
+    const snapshot = await getDocs(q);
+    const fondos = [];
+    snapshot.forEach((d) => fondos.push({ id: d.id, ...d.data() }));
+
+    const deletes = fondos.map(async (fondo) => {
+      const ref = doc(db, COLLECTION_NAME, fondo.id);
+      // Auditoría opcional si se pasa servicio
+      if (auditServiceRef) {
+        try { await auditServiceRef.logAction({
+          usuarioId: user.id || user.uid,
+          usuarioEmail: user.email,
+          usuarioNombre: user.name,
+          accion: 'ELIMINAR_FONDO',
+          entidad: 'fondos',
+          entidadId: fondo.id,
+          detalles: 'Eliminación masiva de fondos (reset)',
+          valorAnterior: fondo
+        }); } catch (e) { console.error('Audit fondos delete', e); }
+      }
+      return deleteDoc(ref);
+    });
+
+    await Promise.all(deletes);
+    return { success: true, deletedCount: fondos.length };
+  } catch (error) {
+    console.error('Error al eliminar fondos:', error);
+    throw error;
+  }
+};
 
 // Crear un nuevo ingreso de fondos
 export const createFondo = async (fondoData) => {

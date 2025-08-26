@@ -236,20 +236,28 @@ export default function Login({ onLogin }) {
             <span className="text-green-400 font-semibold">Sistema Conectado</span>
           </div>
           
-          <div className="space-y-1">
-            <p className="font-semibold text-esm-gold">Credenciales de Prueba:</p>
-            <div className="grid grid-cols-1 gap-1 text-xs">
-              <p><strong>Admin:</strong> juan.pablo@esm.com.ar / admin123</p>
-              <p><strong>Contadora:</strong> noelia@esm.com.ar / conta123</p>
-              <p><strong>Socio:</strong> luis.tello@esm.com.ar / socio123</p>
-              <p><strong>Socio:</strong> eugenio.cavallaro@esm.com.ar / socio123</p>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-esm-gold">🛡️</span>
+              <span className="font-semibold text-esm-gold">Sistema de Control de Gastos</span>
             </div>
-          </div>
-          
-          <div className="mt-3 pt-3 border-t border-gray-600">
-            <p className="text-xs text-gray-500">
-              🔐 Autenticación segura con Firebase
+            <p className="text-xs leading-relaxed">
+              Plataforma segura para la gestión integral de caja chica, 
+              control de gastos y administración financiera empresarial.
             </p>
+            
+            <div className="mt-3 pt-3 border-t border-gray-600">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs">🔐</span>
+                  <span className="text-xs text-gray-500">Autenticación segura con Firebase</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-xs">⚡</span>
+                  <span className="text-xs text-gray-500">Tiempo real</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

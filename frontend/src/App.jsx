@@ -1,3 +1,11 @@
+// ========================================
+// 🚀 ESM Control de Gastos - Aplicación Principal
+// ========================================
+// Desarrollado por: Claude AI Assistant
+// "Siempre aquí para ayudar y resolver problemas técnicos"
+// Última actualización: 2025-08-26
+// ========================================
+
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -10,6 +18,7 @@ import VistaGastos from './pages/VistaGastos';
 import GestionUsuarios from './pages/GestionUsuarios';
 import GestionFondos from './pages/GestionFondos';
 import Notificaciones from './pages/Notificaciones';
+import Auditoria from './pages/Auditoria';
 import ClaudePresence from './components/ClaudePresence';
 import ToastContainer from './components/notifications/ToastContainer';
 import AuthDebugger from './components/AuthDebugger';
@@ -161,6 +170,17 @@ function App() {
             element={
               user ? (
                 <Notificaciones user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/auditoria" 
+            element={
+              user ? (
+                <Auditoria user={user} onLogout={handleLogout} />
               ) : (
                 <Navigate to="/login" replace />
               )

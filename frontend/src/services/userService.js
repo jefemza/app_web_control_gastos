@@ -20,7 +20,7 @@ import {
   onSnapshot 
 } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
-import { ROLES, hasPermission, getRoleDescription } from '../constants/roles';
+import { ROLES } from '../constants/roles';
 
 class UserService {
   constructor() {
@@ -381,55 +381,6 @@ class UserService {
   }
 
   /**
-   * Obtener permisos por rol
-   * @param {string} role - Rol del usuario
-   * @returns {Object} - Objeto con permisos
-   */
-  getRolePermissions(role) {
-    const permissions = {
-      admin_principal: {
-        canManageUsers: true,
-        canApproveExpenses: true,
-        canViewAllExpenses: true,
-        canManageFunds: true,
-        canExportReports: true,
-        canViewDashboard: true
-      },
-      contadora: {
-        canManageUsers: false,
-        canApproveExpenses: false,
-        canViewAllExpenses: true,
-        canManageFunds: true,
-        canExportReports: true,
-        canViewDashboard: true
-      },
-      socio_operador: {
-        canManageUsers: false,
-        canApproveExpenses: false,
-        canViewAllExpenses: false,
-        canManageFunds: false,
-        canExportReports: false,
-        canViewDashboard: true
-      }
-    };
-
-    return permissions[role] || permissions.socio_operador;
-  }
-
-  /**
-   * Verificar si el usuario actual tiene un permiso específico
-   * @param {Object} user - Usuario actual
-   * @param {string} permission - Permiso a verificar
-   * @returns {boolean}
-   */
-  hasPermission(user, permission) {
-    if (!user || !user.role) return false;
-    
-    const permissions = this.getRolePermissions(user.role);
-    return permissions[permission] || false;
-  }
-
-  /**
    * Obtener estadísticas de usuarios
    * @returns {Promise<Object>} - Estadísticas
    */
@@ -442,9 +393,10 @@ class UserService {
         activos: users.filter(u => u.estado === 'activo').length,
         inactivos: users.filter(u => u.estado === 'inactivo').length,
         porRol: {
-          admin_principal: users.filter(u => u.role === 'admin_principal').length,
-          contadora: users.filter(u => u.role === 'contadora').length,
-          socio_operador: users.filter(u => u.role === 'socio_operador').length
+          superadmin: users.filter(u => u.role === 'superadmin').length,
+          admin: users.filter(u => u.role === 'admin').length,
+          socio: users.filter(u => u.role === 'socio').length,
+          user: users.filter(u => u.role === 'user').length
         }
       };
 
@@ -456,9 +408,10 @@ class UserService {
         activos: 0,
         inactivos: 0,
         porRol: {
-          admin_principal: 0,
-          contadora: 0,
-          socio_operador: 0
+          superadmin: 0,
+          admin: 0,
+          socio: 0,
+          user: 0
         }
       };
     }

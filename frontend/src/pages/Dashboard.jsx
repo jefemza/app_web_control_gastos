@@ -22,6 +22,10 @@ import PropTypes from 'prop-types';
 import { formatCurrency } from '../utils/formatters';
 import { debugFirebase, testWritePermissions } from '../utils/debugFirebase';
 import RolePermissionsTest from '../components/RolePermissionsTest';
+import { deleteAllGastos } from '../services/gastosService';
+import ImportExportGastos from '../components/ImportExportGastos';
+import { maintenanceService } from '../services/maintenanceService';
+import UserCleanupButton from '../components/UserCleanupButton';
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
@@ -340,15 +344,75 @@ export default function Dashboard({ user, onLogout }) {
           </>
         )}
 
+        {/* Herramientas de Administración - Solo para SUPERADMIN */}
+        {user.role === 'superadmin' && (
+          <div className="container mx-auto px-4 mt-8">
+            <div className="bg-esm-gray rounded-xl p-6 border border-gray-700">
+              <h3 className="text-lg font-medium text-white flex items-center mb-4">
+                <span className="text-2xl mr-3">⚙️</span>
+                Herramientas de Administración
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Auditoría */}
+                <div className="bg-black/20 rounded-lg p-4">
+                  <h4 className="text-white font-medium mb-2">📋 Auditoría del Sistema</h4>
+                  <p className="text-gray-400 text-sm mb-3">
+                    Control total de todas las acciones realizadas en el sistema.
+                  </p>
+                  <button
+                    onClick={() => navigate('/auditoria')}
+                    className="px-4 py-2 bg-esm-gold text-black font-medium rounded-lg hover:bg-yellow-400 transition-colors"
+                  >
+                    Ver Auditoría Completa
+                  </button>
+                </div>
+
+                {/* Reset total de aplicación */}
+                <div className="bg-black/20 rounded-lg p-4">
+                  <h4 className="text-white font-medium mb-2">♻️ Restaurar Aplicación</h4>
+                  <p className="text-gray-400 text-sm mb-3">
+                    Elimina todos los gastos e ingresos (fondos) y deja el sistema en cero.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('⚠️ Esta acción eliminará TODOS los gastos e ingresos (fondos). ¿Confirmás el RESET TOTAL?')) {
+                        try {
+                          const result = await maintenanceService.resetApp(user);
+                          alert(`Reset completado. Gastos eliminados: ${result.gastos}. Fondos eliminados: ${result.fondos}.`);
+                          window.location.reload();
+                        } catch (error) {
+                          alert('Error en reset: ' + error.message);
+                        }
+                      }
+                    }}
+                    className="px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                  >
+                    Restaurar Aplicación (Reset Total)
+                  </button>
+                </div>
+
+                {/* Limpiar usuarios */}
+                <UserCleanupButton user={user} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Importación/Exportación Masiva - Solo para ADMIN y SUPERADMIN */}
+        {(user.role === 'admin' || user.role === 'superadmin') && (
+          <div className="container mx-auto px-4 mt-8">
+            <ImportExportGastos user={user} />
+          </div>
+        )}
+  
         {/* Botón de Test Data - Solo en desarrollo */}
         <TestDataButton user={user} />
         
-        {/* Componente de prueba de permisos - Solo en desarrollo */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="container mx-auto px-4 mt-8">
-            <RolePermissionsTest user={user} />
-          </div>
-        )}
+        {/* Componente de prueba de permisos - Temporalmente habilitado para debug */}
+        <div className="container mx-auto px-4 mt-8">
+          <RolePermissionsTest user={user} />
+        </div>
       </main>
     </div>
   );

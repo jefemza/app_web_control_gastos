@@ -10,7 +10,8 @@ import {
   getDocs,
   onSnapshot,
   serverTimestamp,
-  runTransaction
+  runTransaction,
+  deleteDoc
 } from 'firebase/firestore';
 import { getFondoActivo, actualizarSaldoFondo } from './fondosService';
 import { 
@@ -18,11 +19,12 @@ import {
   notificarRechazoGasto, 
   notificarGastoPendiente 
 } from './notificationService';
+import { auditService } from './auditService';
 
 const COLLECTION_NAME = 'gastos';
 
 // Crear un nuevo gasto
-export const createGasto = async (gastoData) => {
+export const createGasto = async (gastoData, user) => {
   try {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...gastoData,
@@ -33,6 +35,14 @@ export const createGasto = async (gastoData) => {
     });
     
     const nuevoGasto = { id: docRef.id, ...gastoData };
+    
+    // Registrar en auditoría
+    try {
+      await auditService.logGastoCreado(user, nuevoGasto);
+    } catch (auditError) {
+      console.error('Error registrando auditoría:', auditError);
+      // No lanzamos el error para no interrumpir la creación del gasto
+    }
     
     // Notificar a los admins sobre el nuevo gasto pendiente
     try {
@@ -211,7 +221,7 @@ export const subscribeToGastos = (callback, userId = null) => {
 };
 
 // Aprobar gasto
-export const aprobarGasto = async (gastoId, comentario = '') => {
+export const aprobarGasto = async (gastoId, comentario = '', user) => {
   try {
     return await runTransaction(db, async (transaction) => {
       // Obtener el gasto
@@ -248,6 +258,13 @@ export const aprobarGasto = async (gastoId, comentario = '') => {
       // Actualizar el saldo del fondo
       await actualizarSaldoFondo(fondoActivo.id, montoGasto);
       
+      // Registrar en auditoría
+      try {
+        await auditService.logAprobacionGasto(user, { id: gastoId, ...gastoData }, 'APROBAR_GASTO', comentario);
+      } catch (auditError) {
+        console.error('Error registrando auditoría:', auditError);
+      }
+      
       // Notificar al usuario sobre la aprobación
       try {
         await notificarAprobacionGasto({ id: gastoId, ...gastoData }, comentario);
@@ -264,7 +281,7 @@ export const aprobarGasto = async (gastoId, comentario = '') => {
 };
 
 // Rechazar gasto
-export const rechazarGasto = async (gastoId, motivo) => {
+export const rechazarGasto = async (gastoId, motivo, user) => {
   try {
     const gastoRef = doc(db, COLLECTION_NAME, gastoId);
     
@@ -279,8 +296,15 @@ export const rechazarGasto = async (gastoId, motivo) => {
       updatedAt: serverTimestamp()
     });
     
-    // Notificar al usuario sobre el rechazo
+    // Registrar en auditoría
     if (gastoData) {
+      try {
+        await auditService.logAprobacionGasto(user, { id: gastoId, ...gastoData }, 'RECHAZAR_GASTO', motivo);
+      } catch (auditError) {
+        console.error('Error registrando auditoría:', auditError);
+      }
+      
+      // Notificar al usuario sobre el rechazo
       try {
         await notificarRechazoGasto({ id: gastoId, ...gastoData }, motivo);
       } catch (notifError) {
@@ -295,18 +319,91 @@ export const rechazarGasto = async (gastoId, motivo) => {
   }
 };
 
-// Actualizar gasto
-export const updateGasto = async (gastoId, updates) => {
+// Obtener gasto por ID
+export const getGastoById = async (gastoId) => {
   try {
+    const gastoRef = doc(db, COLLECTION_NAME, gastoId);
+    const gastoDoc = await getDocs(query(collection(db, COLLECTION_NAME), where('__name__', '==', gastoId)));
+    
+    if (gastoDoc.docs.length === 0) {
+      throw new Error('Gasto no encontrado');
+    }
+    
+    return { id: gastoId, ...gastoDoc.docs[0].data() };
+  } catch (error) {
+    console.error('Error al obtener gasto por ID:', error);
+    throw error;
+  }
+};
+
+// Actualizar gasto
+export const updateGasto = async (gastoId, updates, user) => {
+  try {
+    // Obtener datos anteriores para auditoría
+    const gastoAnterior = await getGastoById(gastoId);
+    
     const gastoRef = doc(db, COLLECTION_NAME, gastoId);
     await updateDoc(gastoRef, {
       ...updates,
       updatedAt: serverTimestamp()
     });
     
+    // Obtener datos nuevos
+    const gastoNuevo = await getGastoById(gastoId);
+    
+    // Registrar en auditoría
+    try {
+      await auditService.logGastoModificado(user, gastoAnterior, gastoNuevo);
+    } catch (auditError) {
+      console.error('Error registrando auditoría:', auditError);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error('Error al actualizar gasto:', error);
+    throw error;
+  }
+};
+
+// Eliminar todos los gastos - SOLO PARA SUPERADMIN
+export const deleteAllGastos = async (user) => {
+  try {
+    // Verificar que sea SUPERADMIN
+    if (user.role !== 'superadmin') {
+      throw new Error('Solo los SUPERADMIN pueden eliminar todos los gastos');
+    }
+
+    // Obtener todos los gastos
+    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const gastos = [];
+    
+    querySnapshot.forEach((doc) => {
+      gastos.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Eliminar cada gasto
+    const deletePromises = gastos.map(async (gasto) => {
+      const gastoRef = doc(db, COLLECTION_NAME, gasto.id);
+      
+      // Registrar en auditoría antes de eliminar
+      try {
+        await auditService.logGastoEliminado(user, gasto);
+      } catch (auditError) {
+        console.error('Error registrando auditoría:', auditError);
+      }
+      
+      return deleteDoc(gastoRef);
+    });
+
+    await Promise.all(deletePromises);
+    
+    return { 
+      success: true, 
+      deletedCount: gastos.length,
+      message: `Se eliminaron ${gastos.length} gastos correctamente`
+    };
+  } catch (error) {
+    console.error('Error al eliminar todos los gastos:', error);
     throw error;
   }
 };

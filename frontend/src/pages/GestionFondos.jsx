@@ -86,8 +86,10 @@ const GestionFondos = ({ user, onLogout }) => {
     }
   };
 
-  // Solo admin y contadora pueden gestionar fondos
-  if (user.role !== 'admin_principal' && user.role !== 'contadora') {
+  // Solo superadmin, admin y contadora pueden gestionar fondos
+  const allowedRoles = ['superadmin', 'admin', 'admin_principal', 'contadora'];
+  if (!allowedRoles.includes(user.role)) {
+    console.log('Acceso denegado. Rol del usuario:', user.role);
     navigate('/dashboard');
     return null;
   }

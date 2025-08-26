@@ -1,17 +1,19 @@
-// Sistema de roles y permisos
+// Sistema de roles y permisos - ESM Argentina
 export const ROLES = {
-  SUPERADMIN: 'superadmin', // Luis - Acceso total + desarrollo
-  ADMIN: 'admin',           // Noelia - Control total
-  SOCIO: 'socio',           // Otros socios - Solo visualización
+  SUPERADMIN: 'superadmin', // Luis Tello - Control total + desarrollo
+  ADMIN: 'admin',           // Noelia Albornoz - Control total (Contadora)
+  SOCIO: 'socio',           // Juan Pablo Rúa, Eugenio Cavallaro - Solo visualización
   USER: 'user'              // Empleados - Operación básica
 };
 
 export const PERMISOS = {
-  // Permisos de gestión
-  APROBAR_GASTOS: 'aprobar_gastos',
-  RECHAZAR_GASTOS: 'rechazar_gastos',
+  // Permisos de gestión total
   GESTIONAR_USUARIOS: 'gestionar_usuarios',
   GESTIONAR_FONDOS: 'gestionar_fondos',
+  APROBAR_GASTOS: 'aprobar_gastos',
+  RECHAZAR_GASTOS: 'rechazar_gastos',
+  MODIFICAR_GASTOS: 'modificar_gastos',
+  ELIMINAR_GASTOS: 'eliminar_gastos',
   
   // Permisos de visualización
   VER_TODOS_GASTOS: 'ver_todos_gastos',
@@ -21,41 +23,52 @@ export const PERMISOS = {
   // Permisos de operación
   CREAR_GASTOS: 'crear_gastos',
   VER_GASTOS_PROPIOS: 'ver_gastos_propios',
-  EXPORTAR_DATOS: 'exportar_datos'
+  EXPORTAR_DATOS: 'exportar_datos',
+  
+  // Permisos de auditoría
+  VER_LOG_AUDITORIA: 'ver_log_auditoria',
+  EXPORTAR_LOG: 'exportar_log'
 };
 
 // Definir permisos por rol
 export const PERMISOS_POR_ROL = {
   [ROLES.SUPERADMIN]: [
     // TODOS los permisos + extras de desarrollo
-    PERMISOS.APROBAR_GASTOS,
-    PERMISOS.RECHAZAR_GASTOS,
     PERMISOS.GESTIONAR_USUARIOS,
     PERMISOS.GESTIONAR_FONDOS,
+    PERMISOS.APROBAR_GASTOS,
+    PERMISOS.RECHAZAR_GASTOS,
+    PERMISOS.MODIFICAR_GASTOS,
+    PERMISOS.ELIMINAR_GASTOS,
     PERMISOS.VER_TODOS_GASTOS,
     PERMISOS.VER_REPORTES_COMPLETOS,
     PERMISOS.VER_DASHBOARD_COMPLETO,
     PERMISOS.CREAR_GASTOS,
     PERMISOS.VER_GASTOS_PROPIOS,
-    PERMISOS.EXPORTAR_DATOS
+    PERMISOS.EXPORTAR_DATOS,
+    PERMISOS.VER_LOG_AUDITORIA,
+    PERMISOS.EXPORTAR_LOG
   ],
   
   [ROLES.ADMIN]: [
-    // Todos los permisos
+    // Control total de la aplicación (Contadora)
+    PERMISOS.GESTIONAR_FONDOS,
     PERMISOS.APROBAR_GASTOS,
     PERMISOS.RECHAZAR_GASTOS,
-    PERMISOS.GESTIONAR_USUARIOS,
-    PERMISOS.GESTIONAR_FONDOS,
+    PERMISOS.MODIFICAR_GASTOS,
+    PERMISOS.ELIMINAR_GASTOS,
     PERMISOS.VER_TODOS_GASTOS,
     PERMISOS.VER_REPORTES_COMPLETOS,
     PERMISOS.VER_DASHBOARD_COMPLETO,
     PERMISOS.CREAR_GASTOS,
     PERMISOS.VER_GASTOS_PROPIOS,
-    PERMISOS.EXPORTAR_DATOS
+    PERMISOS.EXPORTAR_DATOS,
+    PERMISOS.VER_LOG_AUDITORIA,
+    PERMISOS.EXPORTAR_LOG
   ],
   
   [ROLES.SOCIO]: [
-    // Solo visualización y carga propia
+    // Solo visualización y carga propia (Socios)
     PERMISOS.VER_TODOS_GASTOS,
     PERMISOS.VER_REPORTES_COMPLETOS,
     PERMISOS.VER_DASHBOARD_COMPLETO,
@@ -65,7 +78,7 @@ export const PERMISOS_POR_ROL = {
   ],
   
   [ROLES.USER]: [
-    // Operación básica
+    // Operación básica (Empleados)
     PERMISOS.CREAR_GASTOS,
     PERMISOS.VER_GASTOS_PROPIOS
   ]
@@ -80,9 +93,9 @@ export const hasPermission = (userRole, permission) => {
 // Función para obtener descripción del rol
 export const getRoleDescription = (role) => {
   const descriptions = {
-    [ROLES.SUPERADMIN]: 'SuperAdmin - Acceso total + desarrollo del sistema',
-    [ROLES.ADMIN]: 'Administrador - Control total del sistema',
-    [ROLES.SOCIO]: 'Socio - Visualización completa, sin modificaciones',
+    [ROLES.SUPERADMIN]: 'SuperAdmin - Control total del sistema (Luis Tello)',
+    [ROLES.ADMIN]: 'Administrador - Control total de la aplicación (Noelia Albornoz - Contadora)',
+    [ROLES.SOCIO]: 'Socio - Visualización completa, carga de gastos (Juan Pablo Rúa, Eugenio Cavallaro)',
     [ROLES.USER]: 'Usuario - Carga de gastos propios únicamente'
   };
   return descriptions[role] || 'Rol no definido';
@@ -92,33 +105,39 @@ export const getRoleDescription = (role) => {
 export const getRolePrivileges = (role) => {
   const privileges = {
     [ROLES.SUPERADMIN]: [
-      '👑 ACCESO TOTAL AL SISTEMA',
+      '👑 CONTROL TOTAL DEL SISTEMA',
+      '✅ Gestión completa de usuarios',
+      '✅ Administración de fondos y presupuestos',
       '✅ Aprobar y rechazar gastos',
-      '✅ Gestionar usuarios del sistema', 
-      '✅ Administrar fondos y presupuestos',
+      '✅ Modificar y eliminar gastos',
       '✅ Ver todos los gastos y reportes',
       '✅ Exportar datos completos',
-      '✅ Cargar gastos propios',
-      '🛠️ Acceso a herramientas de desarrollo',
-      '⚙️ Configuración completa del sistema'
+      '✅ Acceso a logs de auditoría',
+      '🛠️ Herramientas de desarrollo',
+      '⚙️ Configuración del sistema'
     ],
     [ROLES.ADMIN]: [
+      '👩‍💼 CONTROL TOTAL DE LA APLICACIÓN',
+      '✅ Administración de fondos y presupuestos',
       '✅ Aprobar y rechazar gastos',
-      '✅ Gestionar usuarios del sistema', 
-      '✅ Administrar fondos y presupuestos',
+      '✅ Modificar y eliminar gastos',
       '✅ Ver todos los gastos y reportes',
       '✅ Exportar datos completos',
-      '✅ Cargar gastos propios'
+      '✅ Acceso a logs de auditoría',
+      '📊 Responsable del proceso interno'
     ],
     [ROLES.SOCIO]: [
-      '👁️ Ver todos los gastos y reportes',
+      '👥 ACCESO DE SOCIO',
+      '✅ Cargar gastos propios',
+      '👁️ Ver todos los gastos (solo lectura)',
       '👁️ Acceso completo al dashboard',
       '📊 Exportar datos y estadísticas',
-      '✅ Cargar gastos propios',
       '❌ No puede aprobar/rechazar gastos',
-      '❌ No puede gestionar usuarios ni configuraciones'
+      '❌ No puede modificar gastos de otros',
+      '❌ Sin acceso a gestión interna'
     ],
     [ROLES.USER]: [
+      '👤 ACCESO BÁSICO',
       '✅ Cargar gastos propios',
       '👁️ Ver solo sus gastos',
       '❌ No ve gastos de otros usuarios',
@@ -127,4 +146,12 @@ export const getRolePrivileges = (role) => {
     ]
   };
   return privileges[role] || ['Sin privilegios definidos'];
+};
+
+// Mapeo de usuarios específicos
+export const USER_ROLES = {
+  'luis.tello@esm.com.ar': ROLES.SUPERADMIN,
+  'noelia@esm.com.ar': ROLES.ADMIN,
+  'juan.pablo@esm.com.ar': ROLES.SOCIO,
+  'eugenio.cavallaro@esm.com.ar': ROLES.SOCIO
 };
