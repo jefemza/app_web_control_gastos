@@ -19,7 +19,7 @@ import GestionUsuarios from './pages/GestionUsuarios';
 import GestionFondos from './pages/GestionFondos';
 import Notificaciones from './pages/Notificaciones';
 import Auditoria from './pages/Auditoria';
-import ClaudePresence from './components/ClaudePresence';
+// import ClaudePresence from './components/ClaudePresence';
 import ToastContainer from './components/notifications/ToastContainer';
 import AuthDebugger from './components/AuthDebugger';
 
@@ -193,7 +193,7 @@ function App() {
       </Router>
           
       {/* Claude AI Presence Indicator */}
-      <ClaudePresence />
+      {/* ClaudePresence oculto temporalmente */}
       
       {/* Toast Notifications */}
       <ToastContainer />

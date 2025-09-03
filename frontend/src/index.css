@@ -88,7 +88,19 @@
 
 /* Efecto de brillo en el logo */
 .logo-glow {
-  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
+  filter: drop-shadow(0 0 28px rgba(212, 175, 55, 0.45)) drop-shadow(0 0 6px rgba(212, 175, 55, 0.25));
+}
+
+/* Texto azul con efecto neón suave */
+.text-blue-neon {
+  color: #38bdf8; /* sky-400 */
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6), 0 0 16px rgba(56, 189, 248, 0.35);
+}
+
+/* Escala global del logo: +20% */
+.logo-scale {
+  display: inline-block;
+  transform: scale(1.2);
 }
 
 /* Estilo para el eye icon del password */
@@ -164,11 +176,13 @@
 
 /* Mejoras visuales */
 .backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
 .glass-effect {
   background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }

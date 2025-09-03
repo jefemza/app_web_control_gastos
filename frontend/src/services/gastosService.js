@@ -21,20 +21,23 @@ import {
 } from './notificationService';
 import { auditService } from './auditService';
 
+
 const COLLECTION_NAME = 'gastos';
 
 // Crear un nuevo gasto
-export const createGasto = async (gastoData, user) => {
+export const createGasto = async (gastoData, user = null) => {
   try {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+      // empresa por defecto ESM para compatibilidad hacia atrás
+      empresa: gastoData.empresa || 'ESM',
       ...gastoData,
-      estado: 'pendiente',
-      comentarioAdmin: '',
+      estado: 'aprobado',
+      comentarioAdmin: 'Aprobado automáticamente',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
-    
-    const nuevoGasto = { id: docRef.id, ...gastoData };
+
+    const nuevoGasto = { id: docRef.id, empresa: gastoData.empresa || 'ESM', ...gastoData, estado: 'aprobado' };
     
     // Registrar en auditoría
     try {
@@ -44,9 +47,9 @@ export const createGasto = async (gastoData, user) => {
       // No lanzamos el error para no interrumpir la creación del gasto
     }
     
-    // Notificar a los admins sobre el nuevo gasto pendiente
+    // Notificar aprobación automática
     try {
-      await notificarGastoPendiente(nuevoGasto);
+      await notificarAprobacionGasto(nuevoGasto, 'Aprobado automáticamente');
     } catch (notifError) {
       console.error('Error al enviar notificación:', notifError);
       // No lanzamos el error para no interrumpir la creación del gasto

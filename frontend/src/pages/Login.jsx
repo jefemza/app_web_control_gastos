@@ -150,7 +150,7 @@ export default function Login({ onLogin }) {
           <img 
             src="/logo_ESM Argentina.png" 
             alt="ESM Argentina" 
-            className="w-32 h-32 mx-auto mb-8 logo-hover logo-glow"
+            className="w-32 h-32 mx-auto mb-8 logo-hover logo-glow logo-scale"
           />
           <h1 className="text-3xl font-light tracking-wider text-gray-200 uppercase">
             Control de Caja Chica

@@ -21,3 +21,23 @@ export const MEDIOS_PAGO = [
   'billetera',
   'tarjeta'
 ];
+
+// Empresas soportadas
+export const EMPRESAS = ['ESM', 'BROD'];
+
+// Categorías específicas para Bröd (cafetería)
+export const CATEGORIAS_GASTOS_BROD = [
+  'insumos cocina',
+  'panadería/pastelería',
+  'café/infusiones',
+  'bebidas y lácteos',
+  'envases/packaging',
+  'limpieza e higiene',
+  'mantenimiento/equipos',
+  'servicios',
+  'sueldos/propinas',
+  'marketing/publicidad',
+  'herramientas/utensilios',
+  'impuestos/afip',
+  'otros'
+];

@@ -17,6 +17,14 @@ export const formatCurrency = (amount) => {
   }).format(number);
 };
 
+// Obtener fecha actual en zona horaria de Argentina
+export const getCurrentDateArgentina = () => {
+  const now = new Date();
+  // Argentina está en UTC-3
+  const argentinaTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+  return argentinaTime.toISOString().split('T')[0];
+};
+
 // Formatear fecha
 export const formatDate = (date) => {
   if (!date) return 'N/A';

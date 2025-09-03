@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import { exportToCSV, formatGastosForCSV, gastosCSVHeaders } from '../utils/csvExport';
 import { subscribeToGastos, aprobarGasto, rechazarGasto } from '../services/gastosService';
 import { showToast } from '../components/notifications/ToastContainer';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, getCurrentDateArgentina, formatDate } from '../utils/formatters';
 import { CATEGORIAS_GASTOS } from '../constants/categorias';
 import PropTypes from 'prop-types';
 
@@ -100,7 +100,7 @@ export default function PanelControl({ user, onLogout }) {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const datosFormateados = formatGastosForCSV(gastos);
-      const fechaHoy = new Date().toISOString().split('T')[0];
+      const fechaHoy = getCurrentDateArgentina();
       const filename = `gastos_caja_chica_${fechaHoy}.csv`;
       
       const exportado = exportToCSV(datosFormateados, gastosCSVHeaders, filename);
@@ -149,7 +149,7 @@ export default function PanelControl({ user, onLogout }) {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Navegación */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           className="flex items-center space-x-2 text-gray-400 hover:text-esm-gold transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -259,7 +259,7 @@ export default function PanelControl({ user, onLogout }) {
                   {gastos.map((gasto) => (
                     <tr key={gasto.id} className="hover:bg-esm-gray/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {new Date(gasto.fecha).toLocaleDateString('es-AR')}
+                        {formatDate(gasto.fecha)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{gasto.usuario}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">

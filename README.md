@@ -1,230 +1,110 @@
-# 🏢 ESM Argentina - Control de Caja Chica
+# 💼 Sistema de Control de Caja Chica - ESM Argentina
 
-## 📋 Descripción del Proyecto
+Sistema web integral para la gestión y control de gastos de caja chica para ESM Argentina.
 
-Sistema completo de control de caja chica para ESM Argentina, desarrollado con React, Firebase y Vercel. Permite la gestión integral de gastos, fondos, usuarios y auditoría con roles granulares.
+## 🌐 Acceso al Sistema
 
-## 🚀 Características Principales
+**URL de Producción**: https://esmargentina.net
 
-### 👥 Sistema de Usuarios y Roles
-- **SUPERADMIN**: Control total + desarrollo (Luis Sergio Tello)
-- **ADMIN**: Control total - Contaduría (Noelia Albornoz)
-- **SOCIO**: Solo visualización (Juan Pablo Rua, Eugenio Cavallaro)
-- **USER**: Operación básica (operadores/diligencieros)
+## 🎯 Características Principales
 
-### 💰 Gestión de Fondos
-- Registro de ingresos de caja chica
-- Control de saldos disponibles
-- Historial completo de transacciones
-- Alertas de fondos bajos
+### Gestión de Gastos
+- Registro detallado de gastos con categorización
+- Carga de comprobantes (fotos/PDF)
+- Sistema de aprobación/rechazo
+- Exportación e importación masiva (CSV/Excel)
 
-### 📊 Gestión de Gastos
-- Registro de gastos con categorías
-- Aprobación/rechazo de gastos
-- Adjuntar comprobantes
-- Exportación a CSV
-- Importación masiva de gastos
+### Control de Fondos
+- Seguimiento en tiempo real del saldo disponible
+- Registro de ingresos y egresos
+- Alertas automáticas de fondos bajos
+- Dashboard ejecutivo con métricas clave
 
-### 🔍 Auditoría y Reportes
-- Auditoría completa de todas las acciones
-- Reportes por período
-- Gráficos y estadísticas
-- Exportación de datos
+### Sistema de Roles
+- **SUPERADMIN**: Control total + auditoría
+- **ADMIN**: Gestión operativa completa
+- **SOCIO**: Visualización de información
+- **USER**: Registro de gastos propios
 
-### 📧 Notificaciones (Próximamente)
-- Informes diarios automáticos
-- Alertas por email
-- Notificaciones SMS
+### Notificaciones y Reportes
+- Notificaciones en tiempo real
+- Reportes diarios automáticos por email (21:00 hs)
+- Resumen ejecutivo para socios
+- Sistema de auditoría completo
 
-## 🛠️ Tecnologías Utilizadas
+## 🚀 Tecnologías Utilizadas
 
-- **Frontend**: React 18, Vite, Tailwind CSS
+- **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Firebase (Auth, Firestore, Storage)
 - **Deployment**: Vercel
-- **Autenticación**: Firebase Auth
-- **Base de Datos**: Firestore
-- **Iconos**: Lucide React
+- **Email Service**: SendGrid
+- **Cron Jobs**: Vercel Functions
 
-## 📁 Estructura del Proyecto
+## 📱 Características Especiales
 
-```
-app_web_control_gastos/
-├── frontend/                 # Aplicación React
-│   ├── src/
-│   │   ├── components/       # Componentes reutilizables
-│   │   ├── pages/           # Páginas principales
-│   │   ├── services/        # Servicios de Firebase
-│   │   ├── utils/           # Utilidades y helpers
-│   │   └── config/          # Configuración de Firebase
-│   ├── public/              # Archivos estáticos
-│   └── package.json
-├── docs/                    # Documentación
-├── backend/                 # Configuración backend
-└── README.md
-```
+### Para Administradores (Noelia)
+- Flujo de aprobación simplificado (aprobados automáticamente)
+- Dashboard ejecutivo con control de fondos prominente
+- Importación/exportación masiva de datos
+- Gestión de usuarios operativos
 
-## 🚀 Instalación y Configuración
+### Para Socios
+- Visualización completa de gastos y fondos
+- Recepción de reportes diarios por email
+- Acceso a estadísticas y gráficos
 
-### Prerrequisitos
-- Node.js 18+
-- npm o yarn
-- Cuenta de Firebase
-- Cuenta de Vercel
+### Mobile Responsive
+- Diseño optimizado para dispositivos móviles
+- Tutorial interactivo para nuevos usuarios
+- Interfaz adaptativa para iPhone y Android
 
-### Pasos de Instalación
+## 🔒 Seguridad
 
-1. **Clonar el repositorio**
+- Autenticación mediante Firebase Auth
+- Control de acceso basado en roles
+- Auditoría completa de cambios
+- Variables de entorno protegidas
+
+## 📊 Estado del Sistema
+
+- **Estado**: ✅ Operativo
+- **Versión**: 2.0.0
+- **Última actualización**: 28 de Agosto de 2025
+ - **Nota**: Se descartó el intento de “multi-empresa (Bröd)” y la app continúa operando únicamente para ESM.
+
+## 📝 Documentación
+
+### Archivos principales de documentación:
+- **`ESTADO_ACTUAL.md`** - Estado completo y actual del sistema
+- **`USUARIOS_Y_ROLES.md`** - Información detallada de usuarios y permisos
+- **`FUNCIONALIDADES.md`** - Lista completa de características implementadas
+- **`DEPLOYMENT_PRODUCTION.md`** - Guía de deployment con Vercel
+- **`PARA_NUEVO_CHAT.md`** - Perfil/rol y plantilla para iniciar nuevos chats
+- **`AUTORIZACIONES.md`** - Esquema de permisos y plantilla de aprobación
+- **`docs/CONFIGURACION_COMPLETA.md`** - Configuración técnica detallada
+
+## 👨‍💻 Desarrollo
+
 ```bash
-git clone https://github.com/jefemza/app_web_control_gastos.git
-cd app_web_control_gastos/frontend
-```
-
-2. **Instalar dependencias**
-```bash
+# Instalación
+cd frontend
 npm install
-```
 
-3. **Configurar Firebase**
-- Copiar `src/config/firebase.example.js` a `src/config/firebase.js`
-- Configurar las credenciales de Firebase
-
-4. **Variables de entorno**
-```bash
-# Crear archivo .env.local
-VITE_FIREBASE_API_KEY=tu_api_key
-VITE_FIREBASE_AUTH_DOMAIN=tu_auth_domain
-VITE_FIREBASE_PROJECT_ID=tu_project_id
-VITE_FIREBASE_STORAGE_BUCKET=tu_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
-VITE_FIREBASE_APP_ID=tu_app_id
-```
-
-5. **Ejecutar en desarrollo**
-```bash
+# Desarrollo local
 npm run dev
-```
 
-6. **Desplegar a producción**
-```bash
+# Build para producción
 npm run build
+
+# Deploy a Vercel
 vercel --prod
 ```
 
-## 👥 Usuarios del Sistema
+## 🤝 Soporte
 
-### Usuarios Principales
-- **Luis Sergio Tello** (superadmin)
-  - Email: luistelloiphone@gmail.com
-  - Teléfono: 2617000835
-
-- **Noelia Albornoz** (admin)
-  - Email: noeliaalbornoz1@gmail.com
-  - Teléfono: 2616620283
-
-- **Juan Pablo Rua** (socio)
-  - Email: pablorua@hotmail.com
-  - Teléfono: 2612494500
-
-- **Eugenio Cavallaro** (socio)
-  - Email: eugenion.cavallaro@gmail.com
-  - Teléfono: 2616946211
-
-### Contraseña Temporal
-- **Contraseña para todos**: `esm2025`
-
-## 🌐 URLs de Producción
-
-- **Aplicación Principal**: https://frontend-3xqyhmgna-esm-argentina.vercel.app
-- **Dashboard Vercel**: https://vercel.com/esm-argentina/frontend
-
-## 📊 Funcionalidades por Rol
-
-### SUPERADMIN
-- ✅ Control total del sistema
-- ✅ Gestión completa de usuarios
-- ✅ Auditoría completa
-- ✅ Reset total de aplicación
-- ✅ Todas las funcionalidades
-
-### ADMIN (Contaduría)
-- ✅ Crear usuarios "user"
-- ✅ Editar usuarios "user"
-- ✅ Gestionar fondos
-- ✅ Importar/exportar gastos
-- ✅ Ver todos los gastos
-- ❌ No puede eliminar usuarios
-- ❌ No puede cambiar roles existentes
-
-### SOCIO
-- ✅ Registrar gastos
-- ✅ Ver todos los gastos
-- ✅ Acceso limitado al dashboard
-- ❌ No puede gestionar fondos
-- ❌ No puede gestionar usuarios
-
-### USER (Operadores)
-- ✅ Registrar gastos
-- ✅ Ver sus propios gastos
-- ✅ Acceso básico
-- ❌ Acceso limitado a reportes
-
-## 🔧 Comandos Útiles
-
-```bash
-# Desarrollo
-npm run dev          # Iniciar servidor de desarrollo
-npm run build        # Construir para producción
-npm run preview      # Previsualizar build
-
-# Deployment
-vercel               # Desplegar a Vercel
-vercel --prod        # Desplegar a producción
-vercel --dev         # Desplegar a desarrollo
-
-# Git
-git add .            # Agregar cambios
-git commit -m "msg"  # Commit cambios
-git push             # Subir cambios
-```
-
-## 📝 Notas de Desarrollo
-
-### Características Implementadas
-- ✅ Sistema de autenticación completo
-- ✅ Gestión de usuarios con roles
-- ✅ Control de fondos y gastos
-- ✅ Auditoría automática
-- ✅ Importación/exportación masiva
-- ✅ Gráficos y reportes
-- ✅ Interfaz responsive
-- ✅ Sistema de notificaciones
-
-### Próximas Funcionalidades
-- 📧 Informes automáticos por email
-- 📱 Notificaciones SMS
-- 🔔 Alertas en tiempo real
-- 📊 Reportes avanzados
-
-## 🤝 Contribución
-
-Para contribuir al proyecto:
-
-1. Fork el repositorio
-2. Crear una rama para tu feature
-3. Commit tus cambios
-4. Push a la rama
-5. Crear un Pull Request
-
-## 📄 Licencia
-
-Este proyecto es privado para ESM Argentina.
-
-## 👨‍💻 Desarrollado por
-
-**Claude AI Assistant** - "Siempre aquí para ayudar y resolver problemas técnicos"
+Para soporte técnico, consulte la documentación en `/docs` o contacte al administrador del sistema.
 
 ---
 
-**Última actualización**: 26 de Agosto, 2025
-**Versión**: 2.0.0
-**Estado**: Producción
+**ESM Argentina** - Sistema de Control de Caja Chica  
+*Desarrollado con asistencia de Claude AI Assistant*

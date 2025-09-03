@@ -1,125 +1,191 @@
-# Guía de Deployment para Producción
+# 🚀 GUÍA DE DEPLOYMENT A PRODUCCIÓN - VERCEL
 
-## 📋 Preparación Completada
+## 📋 Información del Proyecto
 
-El proyecto ha sido optimizado para producción con las siguientes mejoras:
+- **Plataforma**: Vercel
+- **Team**: esm-argentina  
+- **Proyecto**: frontend
+- **Dominio**: https://esmargentina.net
+- **Framework**: React + Vite
 
-### ✅ Configuraciones de Seguridad
-- Firebase configurado con variables de entorno
-- Headers de seguridad implementados
-- Sourcemaps desactivados en producción
+## 🔧 Requisitos Previos
 
-### ✅ Optimizaciones de Build
-- Chunks manuales para mejor caching
-- Minificación con Terser
-- Límite de tamaño de chunks aumentado
-- Separación de vendors (React, Firebase, UI)
-
-### ✅ Archivos de Configuración
-- `.env.production` - Variables de entorno para producción
-- `netlify.toml` - Configuración para Netlify
-- `vercel.json` - Configuración para Vercel
-- Scripts de deploy en `package.json`
-
-## 🚀 Opciones de Deployment
-
-### 1. Netlify (Recomendado)
+1. **Vercel CLI instalado**:
 ```bash
-cd frontend
-npm install
-npm run build
-# Subir carpeta dist/ a Netlify o usar CLI:
-npm run deploy:netlify
+npm install -g vercel
 ```
 
-### 2. Vercel
+2. **Autenticación en Vercel**:
 ```bash
-cd frontend
-npm install
-npm run build
-# Usar Vercel CLI:
-npm run deploy:vercel
+vercel login
 ```
 
-### 3. GitHub Pages
-```bash
-cd frontend
-npm install
-npm run build
-# Subir contenido de dist/ a rama gh-pages
-```
+3. **Variables de entorno configuradas en Vercel Dashboard**
 
-### 4. AWS Amplify
-1. Conectar repositorio GitHub
-2. Configurar build settings:
-   - Build command: `npm run build`
-   - Publish directory: `frontend/dist`
+## 📦 Variables de Entorno Requeridas
 
-## 🔧 Variables de Entorno Requeridas
-
-Configurar en el servicio de hosting:
+Las siguientes variables deben estar configuradas en Vercel Dashboard:
 
 ```env
-VITE_FIREBASE_API_KEY=tu_api_key
-VITE_FIREBASE_AUTH_DOMAIN=tu_auth_domain
-VITE_FIREBASE_PROJECT_ID=tu_project_id
-VITE_FIREBASE_STORAGE_BUCKET=tu_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
-VITE_FIREBASE_APP_ID=tu_app_id
-VITE_FIREBASE_MEASUREMENT_ID=tu_measurement_id
+# Firebase
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+
+# SendGrid
+SENDGRID_API_KEY=
+SENDGRID_FROM_EMAIL=caja.chica@esmargentina.net
+SENDGRID_FROM_NAME=ESM Argentina - Caja Chica
 ```
 
-## 📊 Verificación Post-Deployment
+## 🚀 Proceso de Deployment
 
-1. **Funcionalidad**:
-   - Login/logout funciona
-   - CRUD de gastos operativo
-   - Reportes se generan correctamente
-   - Exportación a Excel funciona
+### 1. Build Local
+```bash
+cd frontend
+npm install
+npm run build
+```
 
-2. **Performance**:
-   - Lighthouse Score > 90
-   - Tiempo de carga < 3 segundos
-   - Assets optimizados
+### 2. Deploy a Producción
+```bash
+# Deploy directo a producción
+vercel --prod
 
-3. **Seguridad**:
-   - HTTPS habilitado
-   - Headers de seguridad activos
-   - Variables de entorno protegidas
+# O con force para saltar caché
+vercel --prod --force
+```
 
-## 🔍 Comandos Útiles
+### 3. Actualizar Alias del Dominio
+```bash
+# Reemplazar [deployment-url] con la URL del nuevo deployment
+vercel alias set [deployment-url] esmargentina.net
+```
+
+### 4. Verificar Deployment
+```bash
+# Ver lista de deployments
+vercel list
+
+# Ver estado del dominio
+vercel domains inspect esmargentina.net
+```
+
+## 🔄 Comandos Útiles
+
+### Promocionar un Deployment Específico
+```bash
+vercel promote [deployment-url]
+```
+
+### Rollback a Versión Anterior
+```bash
+vercel rollback [deployment-url]
+```
+
+### Ver Logs en Tiempo Real
+```bash
+vercel logs
+```
+
+### Inspeccionar Variables de Entorno
+```bash
+vercel env ls
+```
+
+## 📊 Monitoreo
+
+### Dashboard de Vercel
+- URL: https://vercel.com/esm-argentina/frontend
+- Métricas de performance
+- Logs de funciones
+- Analytics
+
+### Verificación de Cron Jobs
+- Función: `/api/cron/daily-report`
+- Horario: 0 0 * * * (21:00 Argentina)
+- Logs: Disponibles en Vercel Dashboard
+
+## 🐛 Troubleshooting
+
+### Problema: Deployment no se actualiza
+```bash
+# Forzar nuevo deployment sin caché
+vercel --prod --force --skip-domain
+
+# Promocionar manualmente
+vercel promote [deployment-url]
+
+# Actualizar alias
+vercel alias set [deployment-url] esmargentina.net
+```
+
+### Problema: Variables de entorno no funcionan
+1. Verificar en Vercel Dashboard
+2. Re-deploy después de cambiar variables
+3. Verificar nombres (deben empezar con VITE_ para frontend)
+
+### Problema: Dominio no resuelve
+```bash
+# Verificar nameservers
+vercel domains inspect esmargentina.net
+
+# Verificar DNS
+nslookup esmargentina.net
+```
+
+### Limpiar Caché del Navegador
+- Chrome: Ctrl+Shift+R
+- Firefox: Ctrl+Shift+R  
+- Safari: Cmd+Shift+R
+- O abrir en modo incógnito
+
+## 📝 Checklist Pre-Deployment
+
+- [ ] Código testeado localmente
+- [ ] Build sin errores
+- [ ] Variables de entorno verificadas
+- [ ] Firebase rules actualizadas
+- [ ] SendGrid configurado
+- [ ] Backup de base de datos realizado
+
+## 🔒 Seguridad
+
+1. **Nunca commitear credenciales**
+2. **Usar variables de entorno de Vercel**
+3. **Mantener Firebase rules restrictivas**
+4. **Monitorear logs regularmente**
+
+## 📞 Soporte
+
+### Documentación Oficial
+- Vercel: https://vercel.com/docs
+- Firebase: https://firebase.google.com/docs
+- SendGrid: https://docs.sendgrid.com
+
+### Proyecto
+- GitHub: https://github.com/[tu-usuario]/app_web_control_gastos
+- Producción: https://esmargentina.net
+
+## 🎯 Comandos Rápidos
 
 ```bash
-# Build para producción
-npm run build:prod
+# Deploy completo desde cero
+cd frontend
+npm install
+npm run build
+vercel --prod --force
+vercel alias set [nueva-url] esmargentina.net
 
-# Preview local del build
-npm run preview
-
-# Análisis de bundle
-npm run analyze
-
-# Lint y fix
-npm run lint:fix
+# Verificar estado
+vercel list
+vercel domains inspect esmargentina.net
 ```
 
-## 📝 Notas Importantes
+---
 
-- El proyecto está configurado como SPA (Single Page Application)
-- Los redirects están configurados para manejar rutas del cliente
-- Firebase está configurado para desarrollo y producción
-- Se recomienda configurar un dominio personalizado
-- Monitorear logs de Firebase para errores en producción
-
-## 🆘 Troubleshooting
-
-### Error de rutas 404
-- Verificar configuración de redirects en netlify.toml/vercel.json
-
-### Variables de entorno no funcionan
-- Asegurar que empiecen con `VITE_`
-- Verificar configuración en el panel del hosting
-
-### Errores de Firebase
-- Verificar configuración de dominio en Firebase Console
-- Revisar reglas de Firestore y Storage
+*Última actualización: 26 de Agosto de 2025*
+*Sistema desplegado y operativo en https://esmargentina.net*

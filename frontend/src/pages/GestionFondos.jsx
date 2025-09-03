@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Header from '../components/Header';
 import { createFondo, subscribeToFondos, getResumenFondos } from '../services/fondosService';
 import { getUserByEmail } from '../services/usersService';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, getCurrentDateArgentina, formatDate } from '../utils/formatters';
 
 const GestionFondos = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const GestionFondos = ({ user, onLogout }) => {
     monto: '',
     entregadoPor: '',
     recibidoPor: 'noelia@esm.com.ar',
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: getCurrentDateArgentina(),
     descripcion: ''
   });
 
@@ -72,7 +72,7 @@ const GestionFondos = ({ user, onLogout }) => {
         monto: '',
         entregadoPor: '',
         recibidoPor: 'noelia@esm.com.ar',
-        fecha: new Date().toISOString().split('T')[0],
+        fecha: getCurrentDateArgentina(),
         descripcion: ''
       });
       
@@ -268,7 +268,7 @@ const GestionFondos = ({ user, onLogout }) => {
                 {fondos.map((fondo) => (
                   <tr key={fondo.id} className="border-b border-gray-700/50 hover:bg-black/20">
                     <td className="py-4 px-4 text-white">
-                      {new Date(fondo.fecha).toLocaleDateString('es-AR')}
+                      {formatDate(fondo.fecha)}
                     </td>
                     <td className="py-4 px-4">
                       <span className="text-green-400 font-medium">

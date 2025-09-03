@@ -316,7 +316,7 @@ export default function GestionUsuarios({ user, onLogout }) {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Navegación */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           className="flex items-center space-x-2 text-gray-400 hover:text-esm-gold transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5" />

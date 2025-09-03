@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { auditService } from '../services/auditService';
 import { exportToCSV } from '../utils/csvExport';
 
@@ -133,9 +134,18 @@ const Auditoria = ({ user }) => {
     <div className="min-h-screen bg-esm-gray p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">📋 Auditoría del Sistema</h1>
-          <p className="text-gray-400">Control total de todas las acciones realizadas en el sistema</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">📋 Auditoría del Sistema</h1>
+            <p className="text-gray-400">Control total de todas las acciones realizadas en el sistema</p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver al Dashboard
+          </button>
         </div>
 
         {/* Estadísticas */}

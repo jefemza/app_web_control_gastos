@@ -18,10 +18,12 @@
     "analyze": "npm run build && npx vite-bundle-analyzer dist/stats.html"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "firebase": "^10.14.1",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-joyride": "^2.9.3",
     "react-router-dom": "^6.20.1",
     "recharts": "^2.10.3"
   },

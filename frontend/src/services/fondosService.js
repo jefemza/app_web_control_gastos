@@ -82,6 +82,8 @@ export const createFondo = async (fondoData) => {
 
     // Crear el nuevo fondo
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+      // empresa por defecto ESM para compatibilidad hacia atrás
+      empresa: fondoData.empresa || 'ESM',
       ...fondoData,
       montoInicial: fondoData.monto,
       saldoActual: fondoData.monto,

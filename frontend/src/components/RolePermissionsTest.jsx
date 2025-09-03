@@ -118,7 +118,8 @@ const RolePermissionsTest = ({ user }) => {
           </div>
         </div>
         
-        {currentUserInfo && currentUserInfo.role !== 'superadmin' && (
+        {/* Advertencia solo para Luis Tello si no es superadmin */}
+        {currentUserInfo && user?.email === 'luis.tello@esm.com.ar' && currentUserInfo.role !== 'superadmin' && (
           <div className="mt-3 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded">
             <p className="text-yellow-400 text-sm">
               ⚠️ Tu rol actual ({currentUserInfo.role}) no es SUPERADMIN. 

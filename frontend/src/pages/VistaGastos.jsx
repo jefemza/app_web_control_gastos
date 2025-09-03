@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar, DollarSign, CheckCircle, XCircle, Clock, Filter, A
 import Header from '../components/Header';
 import FilePreview from '../components/FilePreview';
 import { subscribeToGastos } from '../services/gastosService';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatDate } from '../utils/formatters';
 import PropTypes from 'prop-types';
 
 const VistaGastos = ({ user, onLogout }) => {
@@ -110,7 +110,7 @@ const VistaGastos = ({ user, onLogout }) => {
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Navegación */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           className="flex items-center space-x-2 text-gray-400 hover:text-esm-gold transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -202,7 +202,7 @@ const VistaGastos = ({ user, onLogout }) => {
                     </div>
                     <p className="text-gray-400 text-sm flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
-                      {new Date(gasto.fecha).toLocaleDateString('es-AR')}
+                      {formatDate(gasto.fecha)}
                       {(user.role === 'admin_principal' || user.role === 'contadora') && (
                         <span className="ml-4">Por: {gasto.usuario}</span>
                       )}

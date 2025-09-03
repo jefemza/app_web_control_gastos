@@ -5,8 +5,9 @@ import Header from '../components/Header';
 import { uploadMultipleFiles, validateFile, captureFromCamera } from '../services/storageService';
 import { createGasto } from '../services/gastosService';
 import { showToast } from '../components/notifications/ToastContainer';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, getCurrentDateArgentina } from '../utils/formatters';
 import { CATEGORIAS_GASTOS, MEDIOS_PAGO } from '../constants/categorias';
+
 import PropTypes from 'prop-types';
 
 export default function RegistroGastos({ user, onLogout }) {
@@ -15,13 +16,14 @@ export default function RegistroGastos({ user, onLogout }) {
   const cameraInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: getCurrentDateArgentina(),
     monto: '',
     medioPago: '',
     categoria: '',
     descripcion: '',
     archivos: []
   });
+
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -122,8 +124,8 @@ export default function RegistroGastos({ user, onLogout }) {
         archivos: uploadedFiles
       };
 
-      // Crear gasto en Firestore
-      await createGasto(gastoData);
+          // Crear gasto en Firestore
+    await createGasto(gastoData, user);
       
       setUploadProgress(100);
       showToast('success', 'Gasto registrado exitosamente');
@@ -152,7 +154,7 @@ export default function RegistroGastos({ user, onLogout }) {
       
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           className="flex items-center space-x-2 text-gray-400 hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -339,10 +341,12 @@ export default function RegistroGastos({ user, onLogout }) {
                 </div>
               )}
 
-              <p className="text-xs text-gray-400 mt-2">
-                Formatos: JPG, PNG, PDF. Máximo 5MB por archivo.
-              </p>
-            </div>
+                             <p className="text-xs text-gray-400 mt-2">
+                 Formatos: JPG, PNG, PDF. Máximo 5MB por archivo.
+               </p>
+             </div>
+
+             
 
             {/* Barra de progreso */}
             {isLoading && uploadProgress > 0 && (

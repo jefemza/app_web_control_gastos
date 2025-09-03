@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Bell, Check, CheckCheck, Filter, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Check, CheckCheck, Filter, AlertCircle, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
 import Header from '../components/Header';
 import { getUserNotifications, marcarNotificacionLeida, marcarTodasLeidas } from '../services/notificationService';
 import PropTypes from 'prop-types';
 
 export default function Notificaciones({ user, onLogout }) {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [filteredNotifications, setFilteredNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,15 +119,24 @@ export default function Notificaciones({ user, onLogout }) {
                   </p>
                 </div>
               </div>
-              {unreadCount > 0 && (
+              <div className="flex items-center gap-3">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="flex items-center gap-2 px-4 py-2 bg-esm-gold text-black rounded-lg hover:bg-esm-gold/80 transition-colors"
+                  >
+                    <CheckCheck className="h-4 w-4" />
+                    Marcar todas como leídas
+                  </button>
+                )}
                 <button
-                  onClick={handleMarkAllAsRead}
-                  className="flex items-center gap-2 px-4 py-2 bg-esm-gold text-black rounded-lg hover:bg-esm-gold/80 transition-colors"
+                  onClick={() => navigate('/')}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
                 >
-                  <CheckCheck className="h-4 w-4" />
-                  Marcar todas como leídas
+                  <ArrowLeft className="h-4 w-4" />
+                  Volver al Dashboard
                 </button>
-              )}
+              </div>
             </div>
           </div>
 
